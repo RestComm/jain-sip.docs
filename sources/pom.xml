@@ -1,0 +1,31 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>javax.sip</groupId>
+		<artifactId>jsip-docs</artifactId>
+		<version>1.2.X-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>jsip-docs-sources</artifactId>
+
+	<properties>
+		<product.name>jSIP</product.name>
+		<year>2012</year>
+		<bookid>jSIP_User_Guide</bookid>
+		<holder>Mobicents</holder>
+	</properties>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
+</project>
