@@ -7,15 +7,15 @@
 	<title>NIO Architecture in NIST JAIN SIP</title>
 
 <para>
-Performance and efficiency have always been one of the many reasons why developers constantly seek new ways to do things. That can be said of the Java NIO (New Input/Output)libraries. It will be a mistake to think that the NIO architecture will work and outperform the standard Java IO APIs. The fact that you have a new tool doesn't mean it will be the best for every task. With NIO, you are dealing with Buffers, Selectors and non blocking IOs. The standard Java IO is Stream oriented and uses a blocking IO mechanism. This doesn't mean much but it doesn't highlight the major difference between the two framework and why the Java NIO was introduced.
+Performance and efficiency have always been one of the many reasons why developers constantly seek new ways to do things. The same can be said of the Java NIO (New Input/Output)libraries. It will be a mistake to think that the NIO architecture will work and outperform the standard Java IO APIs. The fact that you have a new tool doesn't mean it will be the best for every task. With NIO, you are dealing with Buffers, Selectors and non blocking IOs. The standard Java IO is Stream oriented and uses a blocking IO mechanism. This doesn't mean much, however, it does highlight the major difference between the two framework and why the Java NIO was introduced.
 </para>
 
 <para>
-The IO stream mechanism means you can read a few bytes at a time and manipulate the data as you see fit. However, it does not give you the benefit that you get from NIO. The mechanism used in NIO allows you to read data into a buffer and then work with the information in the buffer. You can move from one position to another in the NIO buffer which can be a powerful thing for data manipulation.
+The IO stream framework means you can read a few bytes at a time and manipulate the data as you see fit. However, it does not give you the benefit that you get from NIO. The mechanism used in NIO allows you to read data into a buffer and then work with the information in the buffer. You can move from one position to another in the NIO buffer which can be a powerful thing for data manipulation.
 </para>
 
 <para>
-When you read the above, you might immediately think that all your future development needs should be moved towards NIO. There is a little downside to the flexibility of buffers. You need to manage the buffer and make sure data isn't overwritten and that all the information you need are correctly read into the NIO buffer. That calls for a little overhead which you don't have to deal with when using a stream oriented solution
+When you read the above, you might immediately think that all your future development needs should be moved towards NIO. There is a little downside to the flexibility and inherenct power of buffers. You need to manage the buffer and make sure data isn't overwritten and that all the information you need are correctly read into the NIO buffer. That calls for a little overhead which you don't have to deal with when using a stream oriented solution
 </para>
 
 <para>
@@ -44,18 +44,18 @@ In the diagram below, you can see how a single selector thread can be used to ma
 
 <para>
 
-Write operations are queued from external threads or, in the case of SSL/TLS handshake, from the selector thread itself. This is due to the way Java implements security. In order to add security to Java NIO, you will need to implement an independent mechanism based on the SSLEngine that is available since JDK 1.5. This means that the SSL/TLS handshake needs to be performed before application data can be processed using NIO. That said, renegotiating a session handshake can be processed simultaneously with application data. The details of this is beyond the scope of this overview. Once negotiation is complete, the SSLEngine will encrypt data using the wrap() and unwrap() functions.
+Write operations are queued from external threads or, in the case of SSL/TLS handshake. This is due to the way Java implements security. In order to add security to Java NIO, you will need to implement an independent mechanism based on the SSLEngine that is available since JDK 1.5. This means that the SSL/TLS handshake needs to be performed before application data can be processed using NIO. That said, renegotiating a session handshake can be processed simultaneously with application data. The details of this is beyond the scope of this overview. Once negotiation is complete, the SSLEngine will encrypt data using the wrap() and unwrap() functions.
 </para>
 
 
 <para>
-Every queued write wakes up the selector thread to do the physical write on the wire. The selector thread never blocks for any pending operation such as TLS handshakes, TCP handshake or message re-ordering, everything in the selector thread must be completely asynchronous. Initiating new outbound sockets for UAC application from JSIP always occurs in a non-selector thread, it blocks that thread until the TCP handshake completes, but this is not a problem because it is a thread pool and the underlying selector thread is not blocked.
+Every queued write wakes up the selector thread to do the physical write on the wire. The selector thread never blocks for any pending operation such as TLS handshakes, TCP handshake or message re-ordering, everything in the selector thread must be completely asynchronous. Initiating new outbound sockets for UAC application from JSIP always occurs in a non-selector thread, it blocks that thread until the TCP handshake completes, however, this is not a problem because it is a thread pool and the underlying selector thread is not blocked.
 
 </para>
 
 
 <para>
-The “End Of Message Detector” (NioPipelineParser.java) is a FSM which reads SIP messages line by line and keeps track of any Content-Length and Call-ID headers. Content-Length is used to determine how much data to expect before passing the complete SIP message to the parser (consequence of using a buffer oriented framework). Call-ID header is used to serialize the message in the correct order similarly to how it’s done in BIO. 
+The “End Of Message Detector” (NioPipelineParser.java) is a FSM which reads SIP messages line by line and keeps track of any Content-Length and Call-ID headers. Content-Length is used to determine how much data to expect before passing the complete SIP message to the parser (consequence of using a buffer oriented framework). The Call-ID header is used to serialize the message in the correct order similarly to how it’s done in BIO. 
 </para>
 
 <section>
@@ -64,7 +64,7 @@ Threading Model
  </title>
 
 <para>
-It is essential to keep as much work off the selector thread including lock wait times and CPU tasks. When the selector thread is idle it is stuck waiting on selector.select(). Inbound traffic wakes the thread up automatically, however when we send messages asynchronously from the apps the selector thread is woken up by the send method ASAP manually.
+It is essential to keep as much work off the selector thread including lock wait times and CPU tasks. When the selector thread is idle it is stuck waiting on selector.select(). Inbound traffic wakes the thread up automatically, however, when messages are sent asynchronously from apps, the selector wakes up and deal with the request immediately.
 </para>
 
  <figure>
@@ -77,48 +77,58 @@ It is essential to keep as much work off the selector thread including lock wait
 </figure>
 
 <para>
-Other threads such as timers must use the same channel.send..() methods. For TLS, some messages are TLS handshake or other metadata. The logic between TLS and TCP is split by overriding NioTcpMessageChannel.addBytes(). Most other parts of the TCP and TLS IO logic are the common for both transports.
+Other threads such as timers must use the same channel.send..() methods. With regards to TLS, some of the messages parsed are either TLS handshakes or metadata. The logic between TLS and TCP is split by overriding NioTcpMessageChannel.addBytes(). That said, TCP and TLS IO logic use a common transport mode.
 </para>
 
 <para>
-Sockets are separate from calls. One socket can carry many calls thus the lifespan of a socket is independent from the call itself. With NIO there is no need to have non-caching sockets. All sockets are cached and do not consume threads to maintain the connection. However NIOHandler.SocketTimeoutAuditor timer task thread periodically checks for sockets that have been idle for too long and closes them to avoid slowly accumulating leaks in long-running systems.
+It is important to understand that sockets are separate from calls. One socket can carry many calls thus the lifespan of a socket is independent from the call itself. With NIO there is no need to have non-caching sockets. All sockets are cached and do not consume threads to maintain the connection. However, NIOHandler.SocketTimeoutAuditor timer task thread periodically checks for sockets that have been idle for too long and closes them to avoid accumulating leaks in long-running systems.
 </para>
 
 <para>Configuration </para>
 
-<screen>
+<para>
 
 Most BIO settings were adapted for NIO including the TLS settings. Only gov.nist.javax.sip.NIO_MAX_SOCKET_IDLE_TIME is new with default value 7200000 (2 hours in milliseconds).
 
+</para>
 
+<para>
+It is strongly recommended that you set the size of the parsing threadpool in the  gov.nist.javax.sip.TCP_POST_PARSING_THREAD_POOL_SIZE to at least 4. Even though the stack will work without this threadpool, disabling it means everything will occur in the selector thread, which can cause the server to eventually grind to a halt.
+</para>
 
-It is strongly recommended to set the size of the parsing threadpool gov.nist.javax.sip.TCP_POST_PARSING_THREAD_POOL_SIZE to at least 4. Even though the stack will work without this threadpool, disabling it means everything will occur in the selector thread, which can easily freeze at any time or will spin in the NIO operations loop freezing the stack.
-
+<para>
 OS configuration for large number of sockets
+</para>
 
-
-
+<para>
 If you want to find out more about setting the maximum limits on Linux server, you go to this link: <ulink url="http://serverfault.com/questions/10852/what-limits-the-maximum-number-of-connections-on-a-linux-server">Linux Maximum Connection Settings</ulink>
+</para>
 
+<para>
+In addition to that (ulimit -n) may restrict the sockets per terminal, so make sure you run the server from a terminal that has the ulimit set to a high value. This is also applies to those working on Mac OS.
+</para>
 
+<para>
+---------------------------------------------------------Memory Model----------------------------------------------------------
+</para>
 
-In addition to that ulimit -n may restrict the sockets per terminal, so make sure you run the server from a terminal that has large ulimit -n beforehand. This is also important for Mac OS.
-
-Memory Model
-
+<para>
 TCP
+</para>
 
+<para>
+For every socket, we maintain the SocketChannel, a NioPipelineParser and a long integer timstamp. The rest of the state comes from the generic ConnectionOrientedMessageChannel which is shared with BIO. The memory consumed per socket is insignificant - just a couple of kilobytes plus temporary buffering of the messages themselves.
+</para>
 
-
-For every socket we maintain the SocketChannel, a NioPipelineParser and a long integer timstamp. The rest of the state comes from the generic ConnectionOrientedMessageChannel which is shared with BIO. The memory consumed per socket is insignificant - just a couple of kilobytes plus temporary buffering of the messages themselves.
-
+<para>
 TLS
+</para>
 
+<para>
 
+On top of the TCP message channel,  each socket has two buffers to be used in wrap() and unwrap() operations. These buffers are sized by the recommended values from the SSL session and usually they are 30-60 KB. These buffers can be resized by doubling the size while the call is in progress. Netty has a mechanism to optimize memory using buffer pools, we can leave this option as a TODO for later. On top of that we maintain SSL state and references to underlying SSLEngine objects. 
 
-On top of the TCP message channel, here each socket has two buffers to be used in wrap and unwrap operations. These buffers are sized by the recommended values from the SSL session and usually they are 30-60 KB. These buffers can be resized by doubling the size while the call is in progress. Netty has a mechanism to optimize memory using buffer pools, we can leave this option as a TODO for later. On top of that we maintain SSL state and references to underlying SSLEngine objects. 
-
-</screen>
+</para>
 
 </section>
 </chapter>
