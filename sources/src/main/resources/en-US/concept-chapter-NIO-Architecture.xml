@@ -15,7 +15,7 @@ The IO stream framework means you can read a few bytes at a time and manipulate 
 </para>
 
 <para>
-When you read the above, you might immediately think that all your future development needs should be moved towards NIO. There is a little downside to the flexibility and inherenct power of buffers. You need to manage the buffer and make sure data isn't overwritten and that all the information you need are correctly read into the NIO buffer. That calls for a little overhead which you don't have to deal with when using a stream oriented solution
+When you read the above, you might immediately think that all your future development needs should be moved towards NIO. There is a little downside to the flexibility and inherent power of buffers. You need to manage the buffer and make sure data isn't overwritten and that all the information you need are correctly read into the NIO buffer. That calls for a little overhead which you don't have to deal with when using a stream oriented solution
 </para>
 
 <para>
@@ -108,9 +108,13 @@ If you want to find out more about setting the maximum limits on Linux server, y
 In addition to that (ulimit -n) may restrict the sockets per terminal, so make sure you run the server from a terminal that has the ulimit set to a high value. This is also applies to those working on Mac OS.
 </para>
 
-<para>
----------------------------------------------------------Memory Model----------------------------------------------------------
-</para>
+</section>
+
+<section>
+<title> Memory Model</title>
+
+
+
 
 <para>
 TCP
@@ -129,6 +133,6 @@ TLS
 On top of the TCP message channel,  each socket has two buffers to be used in wrap() and unwrap() operations. These buffers are sized by the recommended values from the SSL session and usually they are 30-60 KB. These buffers can be resized by doubling the size while the call is in progress. Netty has a mechanism to optimize memory using buffer pools, we can leave this option as a TODO for later. On top of that we maintain SSL state and references to underlying SSLEngine objects. 
 
 </para>
-
 </section>
+
 </chapter>
