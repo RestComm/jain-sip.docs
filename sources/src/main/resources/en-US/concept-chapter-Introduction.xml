@@ -5,6 +5,12 @@
 ]>
 <chapter id="Introduction_to_the_jSIP">
 	<title>Introduction to &SHORT_PLATFORM_NAME;</title>
-	<para>&SHORT_PLATFORM_NAME; is an open source implementation of the JAIN SIP (JSR 32) Specification. 		
+	<para><ulink url="http://code.google.com/p/jain-sip/">&SHORT_PLATFORM_NAME;</ulink> is an open source implementation of the JAIN SIP (JSR 32) Specification. 		
+	</para>
+	<para>
+	This project publishes the Reference Implementation, Technology Compatibility Kit, examples and tools for JAIN-SIP-1.2 (JSR-32 maintenance release) and an SDP library that conforms to the public release of JSR 141 (JAIN-SDP) interfaces. JAIN-SIP is a low level Java API speicification for SIP Signaling. The intended users of this project are SIP developers. It publishes a full implementation of the RFC 3261 Specification and as well as support for several SIP RFCs and IMS Extensions.
+	</para>
+	<para>
+	In addition, the project provides extensions for some features that are not supported by the main jain sip stack, like DNS Support (RFC3263) or provide high availability and fault tolerance through replication of various states of the stack. It supports Call Established Failover or Early Dialog Failover.
 	</para>
 </chapter>
