@@ -84,55 +84,51 @@ Other threads such as timers must use the same channel.send..() methods. With re
 It is important to understand that sockets are separate from calls. One socket can carry many calls thus the lifespan of a socket is independent from the call itself. With NIO there is no need to have non-caching sockets. All sockets are cached and do not consume threads to maintain the connection. However, NIOHandler.SocketTimeoutAuditor timer task thread periodically checks for sockets that have been idle for too long and closes them to avoid accumulating leaks in long-running systems.
 </para>
 
-<para>Configuration </para>
+<section>
+<title>Stack Configuration</title>
 
 <para>
 
-Most BIO settings were adapted for NIO including the TLS settings. Only gov.nist.javax.sip.NIO_MAX_SOCKET_IDLE_TIME is new with default value 7200000 (2 hours in milliseconds).
+Most <ulink url="https://mobicents.ci.cloudbees.com/job/JAIN-SIP/lastSuccessfulBuild/artifact/jain-sip/javadoc/index.html?gov/nist/javax/sip/SipStackImpl.html">JAIN SIP BIO settings</ulink> were adapted for NIO including the TLS settings. Only <literal>gov.nist.javax.sip.NIO_MAX_SOCKET_IDLE_TIME</literal> is new with default value 7200000 (2 hours in milliseconds).
 
 </para>
 
 <para>
-It is strongly recommended that you set the size of the parsing threadpool in the  gov.nist.javax.sip.TCP_POST_PARSING_THREAD_POOL_SIZE to at least 4. Even though the stack will work without this threadpool, disabling it means everything will occur in the selector thread, which can cause the server to eventually grind to a halt.
+It is strongly recommended that you set the size of the parsing threadpool in the <literal>gov.nist.javax.sip.TCP_POST_PARSING_THREAD_POOL_SIZE</literal> to at least 4. Even though the stack will work without this threadpool, disabling it means everything will occur in the selector thread, which can cause the server to eventually grind to a halt.
+</para>
+</section>
+
+<section>
+<title>OS Configuration</title>
+ 
+<para>
+For large number of sockets, if you want to find out more about setting the maximum limits on Linux server, you go to this link: <ulink url="http://serverfault.com/questions/10852/what-limits-the-maximum-number-of-connections-on-a-linux-server">Linux Maximum Connection Settings</ulink>
 </para>
 
 <para>
-OS configuration for large number of sockets
+In addition to that (<literal>ulimit -n</literal>) may restrict the sockets per terminal, so make sure you run the server from a terminal that has the ulimit set to a high value. This is also applies to those working on Mac OS.
 </para>
-
-<para>
-If you want to find out more about setting the maximum limits on Linux server, you go to this link: <ulink url="http://serverfault.com/questions/10852/what-limits-the-maximum-number-of-connections-on-a-linux-server">Linux Maximum Connection Settings</ulink>
-</para>
-
-<para>
-In addition to that (ulimit -n) may restrict the sockets per terminal, so make sure you run the server from a terminal that has the ulimit set to a high value. This is also applies to those working on Mac OS.
-</para>
-
+</section>
 </section>
 
 <section>
 <title> Memory Model</title>
-
-
-
-
-<para>
-TCP
-</para>
+<section>
+<title> TCP</title>
 
 <para>
-For every socket, we maintain the SocketChannel, a NioPipelineParser and a long integer timstamp. The rest of the state comes from the generic ConnectionOrientedMessageChannel which is shared with BIO. The memory consumed per socket is insignificant - just a couple of kilobytes plus temporary buffering of the messages themselves.
+For every socket, we maintain the SocketChannel, a NioPipelineParser and a long integer timstamp. The rest of the state comes from the generic <literal>ConnectionOrientedMessageChannel</literal> which is shared with BIO. The memory consumed per socket is insignificant - just a couple of kilobytes plus temporary buffering of the messages themselves.
 </para>
+</section>
 
+<section>
+<title> TLS</title>
 <para>
-TLS
-</para>
 
-<para>
-
-On top of the TCP message channel,  each socket has two buffers to be used in wrap() and unwrap() operations. These buffers are sized by the recommended values from the SSL session and usually they are 30-60 KB. These buffers can be resized by doubling the size while the call is in progress. Netty has a mechanism to optimize memory using buffer pools, we can leave this option as a TODO for later. On top of that we maintain SSL state and references to underlying SSLEngine objects. 
+On top of the TCP message channel,  each socket has two buffers to be used in <literal>wrap()</literal> and <literal>unwrap()</literal> operations. These buffers are sized by the recommended values from the SSL session and usually they are 30-60 KB. These buffers can be resized by doubling the size while the call is in progress. Netty has a mechanism to optimize memory using buffer pools, we can leave this option as a TODO for later. On top of that we maintain SSL state and references to underlying SSLEngine objects. 
 
 </para>
+</section>
 </section>
 
 </chapter>
