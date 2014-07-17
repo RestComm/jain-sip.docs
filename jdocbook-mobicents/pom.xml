@@ -6,6 +6,7 @@
 		<groupId>javax.sip</groupId>
 		<artifactId>jsip-docs</artifactId>
 		<version>1.2.X-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>jsip-docs-jdocbook-mobicents</artifactId>
