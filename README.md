@@ -1,14 +1,11 @@
+
+[Try Restcomm Cloud NOW for FREE!](https://www.restcomm.com/sign-up/) Zero download and install required.
+
+
+All Restcomm [docs](https://www.restcomm.com/docs/) and [downloads](https://www.restcomm.com/downloads/) are now available at [Restcomm.com](https://www.restcomm.com).
+
+
+
 # JAIN-SIP Docs
 
 This repo holds documentation for https://github.com/RestComm/jain-sip. 
-
-## How to use
-
-1. Clone and build the repo
-```
-git clone https://github.com/RestComm/jain-sip.docs
-cd jain-sip.docs
-mvn clean install
-```
-
-2. Find generated docs in subfolder `jdocbook-mobicents/target/docbook/publish/en-US/`
